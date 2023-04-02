@@ -40,7 +40,8 @@ jobs:
           docker push $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
 
       - name: Deploy to Amazon ECS
-        uses: actions/aws/cli@master
+        uses: docker://amazon/aws-cli:2.0.7
+
 
         with:
           args: ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
