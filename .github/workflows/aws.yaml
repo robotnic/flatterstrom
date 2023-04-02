@@ -1,35 +1,45 @@
-name: Deploy to AWS
+name: Deploy to ECS
 
 on:
   push:
     branches:
       - main
 
+env:
+  ECR_REGISTRY: 209114680710.dkr.ecr.eu-central-1.amazonaws.com/flatterstrom
+  IMAGE_NAME: flatterstrom
+  AWS_REGION: eu-central-1
+  ECS_CLUSTER: xx
+  ECS_SERVICE: yy
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        push: true
-        tags: aws_account_id.dkr.ecr.region.amazonaws.com/my-app:${{ github.sha }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-    - name: Deploy to ECS
-      uses: aws-actions/amazon-ecs-deploy@v1
-      with:
-        cluster: my-cluster
-        service: my-service
-        image: aws_account_id.dkr.ecr.region.amazonaws.com/my-app:${{ github.sha }}
+      - name: Log in to AWS CodeArtifact
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: ${{ env.ECR_REGISTRY }}
+
+      - name: Build and push Docker image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/aws-cli@v1
+        with:
+          args: ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
