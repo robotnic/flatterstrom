@@ -8,6 +8,7 @@ on:
 env:
   ECR_REGISTRY: 209114680710.dkr.ecr.eu-central-1.amazonaws.com/flatterstrom
   IMAGE_NAME: flatterstrom
+  IMAGE_TAG: ${{ github.sha }}
   AWS_REGION: eu-central-1
   ECS_CLUSTER: power
   ECS_SERVICE: flatterservice
