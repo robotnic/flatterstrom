@@ -9,8 +9,8 @@ env:
   ECR_REGISTRY: 209114680710.dkr.ecr.eu-central-1.amazonaws.com/flatterstrom
   IMAGE_NAME: flatterstrom
   AWS_REGION: eu-central-1
-  ECS_CLUSTER: xx
-  ECS_SERVICE: yy
+  ECS_CLUSTER: power
+  ECS_SERVICE: flatterservice
 
 jobs:
   deploy:
