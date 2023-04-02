@@ -21,7 +21,7 @@ jobs:
       - name: Start or Stop EC2 Instance
         if: ${{ steps.determine_action.outputs.action == 'start' || steps.determine_action.outputs.action == 'stop' }}
         run: |
-          INSTANCE_ID=<your-instance-id>
+          INSTANCE_ID=i-035688306516e59e6
           if [ "${{ steps.determine_action.outputs.action }}" == "start" ]; then
             aws ec2 start-instances --instance-ids $INSTANCE_ID
           else
