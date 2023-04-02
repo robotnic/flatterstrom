@@ -1,0 +1,29 @@
+name: Start or Stop EC2 Instance
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  start_or_stop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+      - name: Determine action
+        id: determine_action
+        run: echo "::set-output name=action::$(cat .deploy)"
+      - name: Start or Stop EC2 Instance
+        if: ${{ steps.determine_action.outputs.action == 'start' || steps.determine_action.outputs.action == 'stop' }}
+        run: |
+          INSTANCE_ID=<your-instance-id>
+          if [ "${{ steps.determine_action.outputs.action }}" == "start" ]; then
+            aws ec2 start-instances --instance-ids $INSTANCE_ID
+          else
+            aws ec2 stop-instances --instance-ids $INSTANCE_ID
+          fi
